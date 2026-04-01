@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SQUISH — 無料画像圧縮ツール</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<title>SQUISH — 無料画像圧縮ツール / Free Image Compressor</title>
+<meta name="description" content="無料・ブラウザ完結の画像圧縮ツール。JPEG・PNG・WEBP・GIF対応。Free browser-based image compressor. No upload needed.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3108196829375594" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/browser-image-compression/2.0.2/browser-image-compression.min.js"></script>
 <style>
@@ -25,12 +26,7 @@
     --shadow-lg: 0 6px 32px rgba(0,0,0,0.10);
   }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-  }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
 
   header {
     background: var(--surface);
@@ -49,6 +45,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
   }
 
   .logo {
@@ -57,11 +54,18 @@
     font-weight: 900;
     color: var(--text);
     letter-spacing: -0.02em;
+    flex-shrink: 0;
   }
 
   .logo em { color: var(--accent); font-style: normal; }
 
   .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .live-badge {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -75,10 +79,42 @@
     border-radius: 50%;
     background: var(--accent);
     animation: blink 2s infinite;
+    flex-shrink: 0;
   }
 
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
+  /* LANG TOGGLE */
+  .lang-toggle {
+    display: flex;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .lang-btn {
+    padding: 5px 12px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+    letter-spacing: 0.04em;
+  }
+
+  .lang-btn.active {
+    background: var(--accent);
+    color: white;
+  }
+
+  .lang-btn:hover:not(.active) { color: var(--accent); }
+
+  /* HERO */
   .hero {
     max-width: 840px;
     margin: 0 auto;
@@ -129,23 +165,10 @@
     margin-bottom: 44px;
   }
 
-  .tag {
-    font-size: 0.68rem;
-    font-weight: 600;
-    padding: 3px 9px;
-    border-radius: 100px;
-    background: var(--surface);
-    color: var(--muted);
-    border: 1px solid var(--border);
-  }
-
+  .tag { font-size: 0.68rem; font-weight: 600; padding: 3px 9px; border-radius: 100px; background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
   .tag.hi { background: var(--accent-light); color: var(--accent); border-color: transparent; }
 
-  .main {
-    max-width: 840px;
-    margin: 0 auto;
-    padding: 0 24px 72px;
-  }
+  .main { max-width: 840px; margin: 0 auto; padding: 0 24px 72px; }
 
   .drop-zone {
     background: var(--surface);
@@ -169,9 +192,7 @@
     width: 60px; height: 60px;
     background: var(--accent-light);
     border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     margin: 0 auto 18px;
     font-size: 1.6rem;
     transition: transform 0.25s;
@@ -191,12 +212,7 @@
 
   #file-input { display: none; }
 
-  .settings {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 20px;
-  }
+  .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
 
   .setting-card {
     background: var(--surface);
@@ -208,14 +224,7 @@
 
   .setting-card.full { grid-column: 1 / -1; }
 
-  .setting-label {
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: var(--muted);
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
+  .setting-label { font-size: 0.68rem; font-weight: 600; color: var(--muted); letter-spacing: 0.09em; text-transform: uppercase; margin-bottom: 10px; }
 
   .setting-value {
     font-family: 'Playfair Display', serif;
@@ -226,37 +235,12 @@
     margin-bottom: 12px;
   }
 
-  .setting-value small {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.85rem;
-    color: var(--muted);
-    font-weight: 400;
-  }
+  .setting-value small { font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--muted); font-weight: 400; }
 
-  input[type="range"] {
-    width: 100%;
-    appearance: none;
-    height: 4px;
-    background: var(--border);
-    outline: none;
-    cursor: pointer;
-    border-radius: 4px;
-  }
+  input[type="range"] { width: 100%; appearance: none; height: 4px; background: var(--border); outline: none; cursor: pointer; border-radius: 4px; }
+  input[type="range"]::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: var(--accent); cursor: pointer; border-radius: 50%; box-shadow: 0 2px 8px rgba(42,92,36,0.3); }
 
-  input[type="range"]::-webkit-slider-thumb {
-    appearance: none;
-    width: 18px; height: 18px;
-    background: var(--accent);
-    cursor: pointer;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(42,92,36,0.3);
-  }
-
-  .fmt-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
+  .fmt-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 
   .fmt-btn {
     padding: 8px 4px;
@@ -288,107 +272,28 @@
     transition: all 0.2s;
     margin-bottom: 20px;
     box-shadow: 0 4px 18px rgba(42,92,36,0.22);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
   }
 
-  .compress-btn:hover:not(:disabled) {
-    background: #1e4419;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(42,92,36,0.32);
-  }
-
-  .compress-btn:disabled {
-    background: var(--border);
-    color: var(--muted);
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-  }
+  .compress-btn:hover:not(:disabled) { background: #1e4419; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(42,92,36,0.32); }
+  .compress-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; box-shadow: none; transform: none; }
 
   .progress-wrap { display: none; margin-bottom: 16px; }
 
-  .progress-bar {
-    height: 4px;
-    background: var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 8px;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), #4a8f42);
-    border-radius: 4px;
-    transition: width 0.3s ease;
-    width: 0%;
-  }
-
+  .progress-bar { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #4a8f42); border-radius: 4px; transition: width 0.3s ease; width: 0%; }
   .status-text { font-size: 0.78rem; color: var(--muted); min-height: 18px; }
 
-  .stats-bar {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
+  .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
 
-  .stat {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    text-align: center;
-    box-shadow: var(--shadow);
-  }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; box-shadow: var(--shadow); }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 0.68rem; font-weight: 500; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
 
-  .stat-num {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--accent);
-    line-height: 1;
-  }
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .results-title { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.09em; }
 
-  .stat-label {
-    font-size: 0.68rem;
-    font-weight: 500;
-    color: var(--muted);
-    margin-top: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .results-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-
-  .results-title {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.09em;
-  }
-
-  .clear-btn {
-    font-size: 0.72rem;
-    font-weight: 500;
-    color: var(--muted);
-    background: none;
-    border: 1px solid var(--border);
-    padding: 3px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-family: 'DM Sans', sans-serif;
-  }
-
+  .clear-btn { font-size: 0.72rem; font-weight: 500; color: var(--muted); background: none; border: 1px solid var(--border); padding: 3px 10px; border-radius: 6px; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
   .clear-btn:hover { color: var(--accent2); border-color: var(--accent2); }
 
   .result-item {
@@ -407,64 +312,21 @@
 
   @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
-  .result-name {
-    font-size: 0.83rem;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
+  .result-name { font-size: 0.83rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .result-sizes { font-size: 0.73rem; color: var(--muted); white-space: nowrap; }
   .result-saving { font-size: 0.78rem; font-weight: 600; color: var(--success); white-space: nowrap; }
   .result-saving.bad { color: var(--accent2); }
 
-  .dl-btn {
-    padding: 5px 13px;
-    background: var(--accent-light);
-    border: none;
-    color: var(--accent);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.73rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.15s;
-    white-space: nowrap;
-    text-decoration: none;
-    display: inline-block;
-  }
-
+  .dl-btn { padding: 5px 13px; background: var(--accent-light); border: none; color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 0.73rem; font-weight: 600; cursor: pointer; border-radius: 6px; transition: all 0.15s; white-space: nowrap; text-decoration: none; display: inline-block; }
   .dl-btn:hover { background: var(--accent); color: white; }
 
-  .features {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-top: 40px;
-  }
-
-  .feature {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-  }
-
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 40px; }
+  .feature { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); }
   .feature-icon { font-size: 1.4rem; margin-bottom: 10px; }
   .feature h3 { font-size: 0.88rem; font-weight: 600; margin-bottom: 5px; }
   .feature p { font-size: 0.76rem; color: var(--muted); line-height: 1.55; }
 
-  footer {
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    padding: 22px 24px;
-    text-align: center;
-    font-size: 0.73rem;
-    color: var(--muted);
-    line-height: 1.8;
-  }
+  footer { background: var(--surface); border-top: 1px solid var(--border); padding: 22px 24px; text-align: center; font-size: 0.73rem; color: var(--muted); line-height: 1.8; }
 
   .hidden { display: none !important; }
 
@@ -474,6 +336,7 @@
     .result-item { grid-template-columns: 1fr auto auto; }
     .result-sizes { display: none; }
     .hero h1 { font-size: 1.8rem; }
+    .live-badge { display: none; }
   }
 </style>
 </head>
@@ -483,16 +346,24 @@
   <div class="header-inner">
     <div class="logo">SQU<em>I</em>SH</div>
     <div class="header-right">
-      <span class="live-dot"></span>
-      ブラウザ完結 · 完全無料
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        <span data-ja="ブラウザ完結 · 完全無料" data-en="Browser-based · 100% Free"></span>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('ja')">JP</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+      </div>
     </div>
   </div>
 </header>
 
 <div class="hero">
-  <div class="hero-eyebrow">🗜 画像圧縮ツール</div>
-  <h1>どんな画像も<br><mark>かんたん圧縮</mark></h1>
-  <p>サーバーに送信せず、ブラウザだけで処理。プライバシー安全・完全無料。</p>
+  <div class="hero-eyebrow">
+    🗜 <span data-ja="画像圧縮ツール" data-en="Image Compressor"></span>
+  </div>
+  <h1 id="hero-h1">どんな画像も<br><mark>かんたん圧縮</mark></h1>
+  <p data-ja="サーバーに送信せず、ブラウザだけで処理。プライバシー安全・完全無料。" data-en="All processing happens in your browser. No uploads, no servers, completely private."></p>
   <div class="format-tags">
     <span class="tag hi">JPEG</span>
     <span class="tag hi">PNG</span>
@@ -507,26 +378,26 @@
 <div class="main">
   <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
     <div class="drop-icon-wrap">🖼</div>
-    <div class="drop-title">ここに画像をドロップ</div>
-    <div class="drop-sub">またはクリックして選択 · 複数ファイル対応</div>
+    <div class="drop-title" data-ja="ここに画像をドロップ" data-en="Drop images here"></div>
+    <div class="drop-sub" data-ja="またはクリックして選択 · 複数ファイル対応" data-en="or click to select · Multiple files supported"></div>
   </div>
   <input type="file" id="file-input" multiple accept="image/*,.heic,.heif">
 
   <div class="settings">
     <div class="setting-card">
-      <div class="setting-label">画質</div>
+      <div class="setting-label" data-ja="画質" data-en="Quality"></div>
       <div class="setting-value" id="quality-val">80<small>%</small></div>
       <input type="range" id="quality" min="10" max="100" value="80">
     </div>
     <div class="setting-card">
-      <div class="setting-label">最大サイズ</div>
+      <div class="setting-label" data-ja="最大サイズ" data-en="Max Size"></div>
       <div class="setting-value" id="maxsize-val">1.0<small>MB</small></div>
       <input type="range" id="maxsize" min="1" max="50" value="10" step="1">
     </div>
     <div class="setting-card full">
-      <div class="setting-label">出力形式</div>
+      <div class="setting-label" data-ja="出力形式" data-en="Output Format"></div>
       <div class="fmt-grid">
-        <button class="fmt-btn selected" data-fmt="original">元のまま</button>
+        <button class="fmt-btn selected" data-fmt="original" data-ja="元のまま" data-en="Original"></button>
         <button class="fmt-btn" data-fmt="image/jpeg">JPEG</button>
         <button class="fmt-btn" data-fmt="image/png">PNG</button>
         <button class="fmt-btn" data-fmt="image/webp">WEBP</button>
@@ -535,7 +406,8 @@
   </div>
 
   <button class="compress-btn" id="compress-btn" disabled>
-    <span>🗜</span><span>圧縮する</span>
+    <span>🗜</span>
+    <span data-ja="圧縮する" data-en="Compress Images"></span>
   </button>
 
   <div class="progress-wrap" id="progress-wrap">
@@ -544,15 +416,15 @@
   </div>
 
   <div class="stats-bar hidden" id="stats-bar">
-    <div class="stat"><div class="stat-num" id="stat-count">0</div><div class="stat-label">圧縮済み</div></div>
-    <div class="stat"><div class="stat-num" id="stat-saved">0MB</div><div class="stat-label">削減容量</div></div>
-    <div class="stat"><div class="stat-num" id="stat-avg">0%</div><div class="stat-label">平均削減率</div></div>
+    <div class="stat"><div class="stat-num" id="stat-count">0</div><div class="stat-label" data-ja="圧縮済み" data-en="Compressed"></div></div>
+    <div class="stat"><div class="stat-num" id="stat-saved">0MB</div><div class="stat-label" data-ja="削減容量" data-en="Saved"></div></div>
+    <div class="stat"><div class="stat-num" id="stat-avg">0%</div><div class="stat-label" data-ja="平均削減率" data-en="Avg. Reduction"></div></div>
   </div>
 
   <div id="results-section" class="hidden">
     <div class="results-header">
-      <div class="results-title">結果</div>
-      <button class="clear-btn" id="clear-btn">クリア</button>
+      <div class="results-title" data-ja="結果" data-en="Results"></div>
+      <button class="clear-btn" id="clear-btn" data-ja="クリア" data-en="Clear"></button>
     </div>
     <div id="results-list"></div>
   </div>
@@ -560,28 +432,82 @@
   <div class="features">
     <div class="feature">
       <div class="feature-icon">🔒</div>
-      <h3>プライバシー安全</h3>
-      <p>画像はサーバーに送信されません。すべての処理はブラウザ内で完結します。</p>
+      <h3 data-ja="プライバシー安全" data-en="100% Private"></h3>
+      <p data-ja="画像はサーバーに送信されません。すべての処理はブラウザ内で完結します。" data-en="Your images never leave your device. All processing happens locally in your browser."></p>
     </div>
     <div class="feature">
       <div class="feature-icon">⚡</div>
-      <h3>多形式対応</h3>
-      <p>JPEG・PNG・WEBP・GIF・BMP・TIFF・HEICなど、あらゆる形式に対応。</p>
+      <h3 data-ja="多形式対応" data-en="All Formats"></h3>
+      <p data-ja="JPEG・PNG・WEBP・GIF・BMP・TIFF・HEICなど、あらゆる形式に対応。" data-en="Supports JPEG, PNG, WEBP, GIF, BMP, TIFF, HEIC and more."></p>
     </div>
     <div class="feature">
       <div class="feature-icon">🎯</div>
-      <h3>一括処理</h3>
-      <p>複数ファイルを同時にドロップして、まとめて圧縮・ダウンロードできます。</p>
+      <h3 data-ja="一括処理" data-en="Batch Processing"></h3>
+      <p data-ja="複数ファイルを同時にドロップして、まとめて圧縮・ダウンロードできます。" data-en="Drop multiple files at once and compress them all in one click."></p>
     </div>
   </div>
 </div>
 
 <footer>
-  SQUISH — ブラウザ完結型・無料画像圧縮ツール<br>
-  画像はサーバーに送信されません · © 2025
+  SQUISH — <span data-ja="ブラウザ完結型・無料画像圧縮ツール" data-en="Free Browser-Based Image Compressor"></span><br>
+  <span data-ja="画像はサーバーに送信されません · © 2025" data-en="No uploads · No servers · © 2025"></span>
 </footer>
 
 <script>
+  // ── LANGUAGE ──
+  let currentLang = 'ja';
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase().includes(lang)));
+
+    // h1 special handling
+    const h1 = document.getElementById('hero-h1');
+    if (h1) {
+      h1.innerHTML = lang === 'ja'
+        ? 'どんな画像も<br><mark>かんたん圧縮</mark>'
+        : 'Compress Any Image<br><mark>Instantly & Free</mark>';
+    }
+
+    document.querySelectorAll('[data-ja]').forEach(el => {
+      const text = el.getAttribute('data-' + lang);
+      if (text) el.textContent = text;
+    });
+
+    // Update dynamic texts
+    updateDropZoneText();
+    updateCompressBtnText();
+    updateClearBtn();
+    updateFormatBtns();
+  }
+
+  function updateDropZoneText() {
+    const title = document.querySelector('.drop-title');
+    const sub = document.querySelector('.drop-sub');
+    if (selectedFiles.length > 0) {
+      title.textContent = selectedFiles.length + (currentLang === 'ja' ? '枚選択済み' : ` file${selectedFiles.length > 1 ? 's' : ''} selected`);
+      sub.textContent = currentLang === 'ja' ? '設定を確認して「圧縮する」をクリック' : 'Adjust settings and click Compress';
+    }
+  }
+
+  function updateCompressBtnText() {
+    const span = compressBtn.querySelector('[data-ja]');
+    if (span) span.textContent = span.getAttribute('data-' + currentLang);
+  }
+
+  function updateClearBtn() {
+    const btn = document.getElementById('clear-btn');
+    btn.textContent = btn.getAttribute('data-' + currentLang);
+  }
+
+  function updateFormatBtns() {
+    document.querySelectorAll('.fmt-btn[data-ja]').forEach(btn => {
+      btn.textContent = btn.getAttribute('data-' + currentLang);
+    });
+  }
+
+  // ── APP ──
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('file-input');
   const compressBtn = document.getElementById('compress-btn');
@@ -599,6 +525,10 @@
 
   let selectedFiles = [];
   let selectedFormat = 'original';
+
+  // Auto-detect browser language
+  const browserLang = (navigator.language || navigator.userLanguage || 'ja').toLowerCase();
+  setLang(browserLang.startsWith('ja') ? 'ja' : 'en');
 
   qualitySlider.addEventListener('input', () => {
     qualityVal.innerHTML = `${qualitySlider.value}<small>%</small>`;
@@ -619,20 +549,15 @@
 
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('drag-over');
-    handleFiles(e.dataTransfer.files);
-  });
-
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
   fileInput.addEventListener('change', () => handleFiles(fileInput.files));
 
   function handleFiles(files) {
     selectedFiles = Array.from(files).filter(f => f.type.startsWith('image/') || f.name.match(/\.(heic|heif)$/i));
     if (selectedFiles.length > 0) {
       compressBtn.disabled = false;
-      dropZone.querySelector('.drop-title').textContent = `${selectedFiles.length}枚選択済み`;
-      dropZone.querySelector('.drop-sub').textContent = '設定を確認して「圧縮する」をクリック';
+      dropZone.querySelector('.drop-title').textContent = selectedFiles.length + (currentLang === 'ja' ? '枚選択済み' : ` file${selectedFiles.length > 1 ? 's' : ''} selected`);
+      dropZone.querySelector('.drop-sub').textContent = currentLang === 'ja' ? '設定を確認して「圧縮する」をクリック' : 'Adjust settings and click Compress';
     }
   }
 
@@ -649,36 +574,37 @@
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
       progressFill.style.width = Math.round((i / selectedFiles.length) * 100) + '%';
-      statusText.textContent = `処理中... ${i + 1} / ${selectedFiles.length} — ${file.name}`;
+      statusText.textContent = currentLang === 'ja'
+        ? `処理中... ${i + 1} / ${selectedFiles.length} — ${file.name}`
+        : `Processing... ${i + 1} / ${selectedFiles.length} — ${file.name}`;
 
       try {
-        const options = {
+        const compressed = await imageCompression(file, {
           maxSizeMB,
           initialQuality: quality,
           useWebWorker: true,
           fileType: selectedFormat === 'original' ? undefined : selectedFormat,
-        };
-        const compressed = await imageCompression(file, options);
+        });
         totalOriginal += file.size;
         totalCompressed += compressed.size;
         const saving = ((1 - compressed.size / file.size) * 100).toFixed(1);
         const url = URL.createObjectURL(compressed);
         const ext = selectedFormat === 'original' ? file.name.split('.').pop() : selectedFormat.split('/')[1];
-        const dlName = file.name.replace(/\.[^.]+$/, '') + '_squished.' + ext;
-        addResult(file.name, file.size, compressed.size, saving, url, dlName);
+        addResult(file.name, file.size, compressed.size, saving, url, file.name.replace(/\.[^.]+$/, '') + '_squished.' + ext);
       } catch (err) {
-        statusText.textContent = `エラー: ${file.name}`;
+        statusText.textContent = (currentLang === 'ja' ? 'エラー: ' : 'Error: ') + file.name;
       }
     }
 
     progressFill.style.width = '100%';
-    statusText.textContent = `✓ 完了！ ${selectedFiles.length}枚を圧縮しました`;
+    statusText.textContent = currentLang === 'ja'
+      ? `✓ 完了！ ${selectedFiles.length}枚を圧縮しました`
+      : `✓ Done! Compressed ${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''}`;
 
     const totalSaved = totalOriginal - totalCompressed;
-    const avgPct = ((totalSaved / totalOriginal) * 100).toFixed(1);
     document.getElementById('stat-count').textContent = selectedFiles.length;
     document.getElementById('stat-saved').textContent = formatSize(totalSaved);
-    document.getElementById('stat-avg').textContent = avgPct + '%';
+    document.getElementById('stat-avg').textContent = ((totalSaved / totalOriginal) * 100).toFixed(1) + '%';
     statsBar.classList.remove('hidden');
     resultsSection.classList.remove('hidden');
     compressBtn.disabled = false;
@@ -693,7 +619,7 @@
       <div class="result-name" title="${name}">${name}</div>
       <div class="result-sizes">${formatSize(origSize)} → ${formatSize(compSize)}</div>
       <div class="result-saving ${isGood ? '' : 'bad'}">${isGood ? '▼' : '▲'}${Math.abs(saving)}%</div>
-      <a href="${url}" download="${dlName}"><button class="dl-btn">↓ 保存</button></a>
+      <a href="${url}" download="${dlName}"><button class="dl-btn">${currentLang === 'ja' ? '↓ 保存' : '↓ Save'}</button></a>
     `;
     resultsList.appendChild(item);
   }
@@ -711,8 +637,8 @@
     selectedFiles = [];
     compressBtn.disabled = true;
     statusText.textContent = '';
-    dropZone.querySelector('.drop-title').textContent = 'ここに画像をドロップ';
-    dropZone.querySelector('.drop-sub').textContent = 'またはクリックして選択 · 複数ファイル対応';
+    dropZone.querySelector('.drop-title').setAttribute('data-ja', 'ここに画像をドロップ');
+    setLang(currentLang);
     fileInput.value = '';
   });
 </script>
