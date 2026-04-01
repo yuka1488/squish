@@ -5,11 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SQUISH — 無料画像圧縮ツール / Free Image Compressor</title>
 <meta name="description" content="無料・ブラウザ完結の画像圧縮ツール。JPEG・PNG・WEBP・GIF対応。Free browser-based image compressor. No upload needed.">
-<meta name="keywords" content="画像圧縮,無料,PNG圧縮,JPEG圧縮,WEBP変換,image compressor,free,online">
-<meta property="og:title" content="SQUISH — 無料画像圧縮ツール">
-<meta property="og:description" content="ブラウザだけで完結。JPEG・PNG・WEBP・GIF対応の無料画像圧縮ツール。">
-<meta property="og:url" content="https://squish-orcikzphl-yuka1488s-projects.vercel.app">
-<link rel="canonical" href="https://squish-orcikzphl-yuka1488s-projects.vercel.app">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3108196829375594" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/browser-image-compression/2.0.2/browser-image-compression.min.js"></script>
@@ -283,6 +278,61 @@
   .compress-btn:hover:not(:disabled) { background: #1e4419; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(42,92,36,0.32); }
   .compress-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; box-shadow: none; transform: none; }
 
+  .preset-btn {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .preset-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .sns-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .sns-card:hover { border-color: var(--accent); background: var(--accent-light); }
+  .sns-card.active { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 2px var(--accent); }
+  .sns-name { font-size: 0.78rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .sns-ratio { font-size: 0.9rem; font-weight: 700; color: var(--accent); font-family: 'Playfair Display', serif; letter-spacing: 0.02em; }
+  .sns-card.active .sns-name { color: var(--accent); }
+
+  .ratio-card {
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 60px;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .ratio-card:hover { border-color: var(--accent); background: var(--accent-light); }
+  .ratio-card.active { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 2px var(--accent); }
+  .ratio-rect-wrap { height: 36px; display: flex; align-items: center; justify-content: center; }
+  .ratio-rect { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 2px; transition: all 0.15s; }
+  .ratio-card:hover .ratio-rect { background: var(--accent-light); border-color: var(--accent); }
+  .ratio-card.active .ratio-rect { background: var(--accent); border-color: var(--accent); }
+  .ratio-label { font-size: 0.75rem; font-weight: 600; color: var(--text); }
+  .ratio-card.active .ratio-label { color: var(--accent); }
+
   .progress-wrap { display: none; margin-bottom: 16px; }
 
   .progress-bar { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
@@ -400,7 +450,71 @@
       <input type="range" id="maxsize" min="1" max="50" value="10" step="1">
     </div>
     <div class="setting-card full">
-      <div class="setting-label" data-ja="出力形式" data-en="Output Format"></div>
+      <div class="setting-label" data-ja="リサイズ・比率（任意）" data-en="Resize & Crop Ratio (Optional)"></div>
+
+      <!-- SNS Presets -->
+      <div style="font-size:0.68rem;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px" data-ja="SNSプリセット" data-en="SNS Presets"></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:16px" id="sns-presets">
+        <button class="sns-card" data-w="1080" data-h="1080"><div class="sns-name" data-ja="Instagram 投稿" data-en="Instagram Post"></div><div class="sns-ratio">1 : 1</div></button>
+        <button class="sns-card" data-w="1080" data-h="1920"><div class="sns-name" data-ja="Instagram ストーリー" data-en="Instagram Story"></div><div class="sns-ratio">9 : 16</div></button>
+        <button class="sns-card" data-w="1200" data-h="630"><div class="sns-name" data-ja="X / Twitter 投稿" data-en="X / Twitter Post"></div><div class="sns-ratio">16 : 9</div></button>
+        <button class="sns-card" data-w="1500" data-h="500"><div class="sns-name" data-ja="X ヘッダー画像" data-en="X Header Image"></div><div class="sns-ratio">3 : 1</div></button>
+        <button class="sns-card" data-w="1280" data-h="720"><div class="sns-name" data-ja="YouTube サムネイル" data-en="YouTube Thumbnail"></div><div class="sns-ratio">16 : 9</div></button>
+        <button class="sns-card" data-w="1080" data-h="1920"><div class="sns-name" data-ja="TikTok 動画" data-en="TikTok Video"></div><div class="sns-ratio">9 : 16</div></button>
+        <button class="sns-card" data-w="851" data-h="315"><div class="sns-name" data-ja="Facebook カバー" data-en="Facebook Cover"></div><div class="sns-ratio">8 : 3</div></button>
+        <button class="sns-card" data-w="0" data-h="0" id="preset-none"><div class="sns-name" data-ja="リセット" data-en="Reset"></div><div class="sns-ratio" data-ja="制限なし" data-en="No limit"></div></button>
+      </div>
+
+      <!-- 比率プリセット -->
+      <div style="font-size:0.68rem;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px" data-ja="比率プリセット" data-en="Ratio Presets"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px" id="ratio-presets">
+        <button class="ratio-card" data-ratio="16:9">
+          <div class="ratio-rect-wrap"><div class="ratio-rect" style="width:32px;height:18px"></div></div>
+          <div class="ratio-label">16:9</div>
+        </button>
+        <button class="ratio-card" data-ratio="4:3">
+          <div class="ratio-rect-wrap"><div class="ratio-rect" style="width:28px;height:21px"></div></div>
+          <div class="ratio-label">4:3</div>
+        </button>
+        <button class="ratio-card" data-ratio="3:2">
+          <div class="ratio-rect-wrap"><div class="ratio-rect" style="width:30px;height:20px"></div></div>
+          <div class="ratio-label">3:2</div>
+        </button>
+        <button class="ratio-card" data-ratio="5:4">
+          <div class="ratio-rect-wrap"><div class="ratio-rect" style="width:25px;height:20px"></div></div>
+          <div class="ratio-label">5:4</div>
+        </button>
+        <button class="ratio-card" data-ratio="1:1">
+          <div class="ratio-rect-wrap"><div class="ratio-rect" style="width:24px;height:24px"></div></div>
+          <div class="ratio-label">1:1</div>
+        </button>
+        <button class="ratio-card" data-ratio="4:5">
+          <div class="ratio-rect-wrap"><div class="ratio-rect" style="width:20px;height:25px"></div></div>
+          <div class="ratio-label">4:5</div>
+        </button>
+        <button class="ratio-card" data-ratio="2:3">
+          <div class="ratio-rect-wrap"><div class="ratio-rect" style="width:20px;height:30px"></div></div>
+          <div class="ratio-label">2:3</div>
+        </button>
+        <button class="ratio-card" data-ratio="3:4">
+          <div class="ratio-rect-wrap"><div class="ratio-rect" style="width:21px;height:28px"></div></div>
+          <div class="ratio-label">3:4</div>
+        </button>
+        <button class="ratio-card" data-ratio="9:16">
+          <div class="ratio-rect-wrap"><div class="ratio-rect" style="width:18px;height:32px"></div></div>
+          <div class="ratio-label">9:16</div>
+        </button>
+      </div>
+
+      <!-- カスタム入力 -->
+      <div style="font-size:0.68rem;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px" data-ja="カスタムサイズ (px)" data-en="Custom Size (px)"></div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center">
+        <input type="number" id="max-width" value="" min="0" max="9999" placeholder="幅 W" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;width:100%">
+        <span style="font-size:0.8rem;color:var(--muted);text-align:center">×</span>
+        <input type="number" id="max-height" value="" min="0" max="9999" placeholder="高さ H" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;width:100%">
+      </div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:6px" data-ja="※ 空欄=制限なし。比率を選んだ場合は幅を基準にトリミングします。" data-en="※ Leave blank for no limit. When a ratio is selected, image will be cropped to fit."></div>
+    </div>
       <div class="fmt-grid">
         <button class="fmt-btn selected" data-fmt="original" data-ja="元のまま" data-en="Original"></button>
         <button class="fmt-btn" data-fmt="image/jpeg">JPEG</button>
@@ -455,7 +569,9 @@
 
 <footer>
   SQUISH — <span data-ja="ブラウザ完結型・無料画像圧縮ツール" data-en="Free Browser-Based Image Compressor"></span><br>
-  <span data-ja="画像はサーバーに送信されません · © 2025" data-en="No uploads · No servers · © 2025"></span>
+  <span data-ja="画像はサーバーに送信されません · © 2025" data-en="No uploads · No servers · © 2025"></span><br>
+  <a href="/privacy.html" style="color:var(--muted);margin:0 8px" data-ja="プライバシーポリシー" data-en="Privacy Policy"></a>·
+  <a href="/contact.html" style="color:var(--muted);margin:0 8px" data-ja="お問い合わせ" data-en="Contact"></a>
 </footer>
 
 <script>
@@ -476,6 +592,12 @@
     }
 
     document.querySelectorAll('[data-ja]').forEach(el => {
+      const text = el.getAttribute('data-' + lang);
+      if (text) el.textContent = text;
+    });
+
+    // sns-card inner texts
+    document.querySelectorAll('.sns-name[data-ja], .sns-ratio[data-ja]').forEach(el => {
       const text = el.getAttribute('data-' + lang);
       if (text) el.textContent = text;
     });
@@ -523,6 +645,56 @@
   const progressWrap = document.getElementById('progress-wrap');
   const progressFill = document.getElementById('progress-fill');
   const statusText = document.getElementById('status-text');
+
+  // ── PRESETS ──
+  let activeRatio = null; // {w, h} or null
+
+  function clearPresets() {
+    document.querySelectorAll('.preset-btn, .sns-card, .ratio-card').forEach(b => b.classList.remove('active'));
+    activeRatio = null;
+  }
+
+  // SNS presets
+  document.querySelectorAll('#sns-presets .sns-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const w = parseInt(btn.dataset.w);
+      const h = parseInt(btn.dataset.h);
+      if (w === 0 && h === 0) {
+        clearPresets();
+        document.getElementById('max-width').value = '';
+        document.getElementById('max-height').value = '';
+        return;
+      }
+      clearPresets();
+      btn.classList.add('active');
+      activeRatio = { w, h };
+      document.getElementById('max-width').value = w;
+      document.getElementById('max-height').value = h;
+    });
+  });
+
+  // Ratio presets
+  document.querySelectorAll('#ratio-presets .ratio-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      clearPresets();
+      btn.classList.add('active');
+      const [rw, rh] = btn.dataset.ratio.split(':').map(Number);
+      activeRatio = { rw, rh };
+      // 幅が設定されていれば高さを自動計算
+      const currentW = parseInt(document.getElementById('max-width').value);
+      if (currentW > 0) {
+        document.getElementById('max-height').value = Math.round(currentW * rh / rw);
+      }
+    });
+  });
+
+  // 幅入力時に比率から高さ自動計算
+  document.getElementById('max-width').addEventListener('input', () => {
+    if (activeRatio && activeRatio.rw) {
+      const w = parseInt(document.getElementById('max-width').value);
+      if (w > 0) document.getElementById('max-height').value = Math.round(w * activeRatio.rh / activeRatio.rw);
+    }
+  });
   const resultsList = document.getElementById('results-list');
   const resultsSection = document.getElementById('results-section');
   const statsBar = document.getElementById('stats-bar');
@@ -584,11 +756,14 @@
         : `Processing... ${i + 1} / ${selectedFiles.length} — ${file.name}`;
 
       try {
+        const maxW = parseInt(document.getElementById('max-width').value) || 0;
+        const maxH = parseInt(document.getElementById('max-height').value) || 0;
         const compressed = await imageCompression(file, {
           maxSizeMB,
           initialQuality: quality,
           useWebWorker: true,
           fileType: selectedFormat === 'original' ? undefined : selectedFormat,
+          maxWidthOrHeight: (maxW > 0 || maxH > 0) ? (Math.max(maxW, maxH) || undefined) : undefined,
         });
         totalOriginal += file.size;
         totalCompressed += compressed.size;
