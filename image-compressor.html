@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQUISH — 画像圧縮ツール</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/browser-image-compression/2.0.2/browser-image-compression.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: #222;
+    --accent: #c8ff00;
+    --accent2: #ff6b35;
+    --text: #f0f0f0;
+    --muted: #555;
+    --success: #00ffaa;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 48px 0 32px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .logo {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--accent);
+    text-shadow: 0 0 40px rgba(200,255,0,0.3);
+  }
+
+  .logo span {
+    color: var(--text);
+  }
+
+  .tagline {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #000;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  /* DROP ZONE */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 4px;
+    padding: 64px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .drop-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(200,255,0,0.03) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--accent);
+    background: #111;
+  }
+
+  .drop-zone:hover::before, .drop-zone.drag-over::before {
+    opacity: 1;
+  }
+
+  .drop-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .drop-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .drop-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .format-pills {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .pill.active { border-color: var(--accent); color: var(--accent); }
+
+  #file-input { display: none; }
+
+  /* SETTINGS */
+  .settings {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .setting-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+
+  .setting-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .setting-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    appearance: none;
+    height: 2px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  .output-format-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .fmt-btn {
+    padding: 6px 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+
+  .fmt-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .fmt-btn.selected { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 500; }
+
+  /* COMPRESS BUTTON */
+  .compress-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.15s;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .compress-btn:hover { background: #d4ff1a; transform: translateY(-1px); }
+  .compress-btn:active { transform: translateY(0); }
+  .compress-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+
+  .compress-btn .btn-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* RESULTS */
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .results-title {
+    font-size: 0.8rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .clear-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .clear-btn:hover { color: var(--accent2); border-color: var(--accent2); }
+
+  .result-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    margin-bottom: 8px;
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    align-items: center;
+    gap: 16px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .result-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .result-sizes {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .result-saving {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--success);
+    white-space: nowrap;
+  }
+
+  .result-saving.bad { color: var(--accent2); }
+
+  .dl-btn {
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+  }
+
+  .dl-btn:hover { background: var(--accent); color: #000; }
+
+  /* PROGRESS */
+  .progress-bar {
+    height: 2px;
+    background: var(--border);
+    margin-bottom: 8px;
+    overflow: hidden;
+    display: none;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  .status-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+    min-height: 18px;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .hidden { display: none !important; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 0;
+    margin-top: 64px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <div class="logo">SQU<span>I</span>SH</div>
+    </div>
+    <div class="tagline">
+      <span class="badge">ブラウザ完結</span><br>
+      どんな画像形式でも圧縮<br>
+      サーバー不使用・完全無料
+    </div>
+  </header>
+
+  <!-- DROP ZONE -->
+  <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+    <span class="drop-icon">⬇</span>
+    <div class="drop-text">ここに画像をドロップ、またはクリックして選択</div>
+    <div class="drop-sub">複数ファイル同時対応 · ブラウザ内で処理（アップロード不要）</div>
+    <div class="format-pills">
+      <span class="pill active">JPEG</span>
+      <span class="pill active">PNG</span>
+      <span class="pill active">WEBP</span>
+      <span class="pill active">GIF</span>
+      <span class="pill active">BMP</span>
+      <span class="pill active">TIFF</span>
+      <span class="pill">HEIC ※</span>
+    </div>
+  </div>
+  <input type="file" id="file-input" multiple accept="image/*,.heic,.heif">
+
+  <!-- SETTINGS -->
+  <div class="settings">
+    <div class="setting-card">
+      <div class="setting-label">画質</div>
+      <div class="setting-value" id="quality-val">80<span style="font-size:1rem;color:var(--muted)">%</span></div>
+      <input type="range" id="quality" min="10" max="100" value="80">
+    </div>
+    <div class="setting-card">
+      <div class="setting-label">最大サイズ (MB)</div>
+      <div class="setting-value" id="maxsize-val">1.0<span style="font-size:1rem;color:var(--muted)">MB</span></div>
+      <input type="range" id="maxsize" min="1" max="50" value="10" step="1">
+    </div>
+    <div class="setting-card" style="grid-column: 1 / -1;">
+      <div class="setting-label">出力形式</div>
+      <div class="output-format-grid" style="grid-template-columns: repeat(5, 1fr);">
+        <button class="fmt-btn selected" data-fmt="original">元のまま</button>
+        <button class="fmt-btn" data-fmt="image/jpeg">JPEG</button>
+        <button class="fmt-btn" data-fmt="image/png">PNG</button>
+        <button class="fmt-btn" data-fmt="image/webp">WEBP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPRESS BUTTON -->
+  <button class="compress-btn" id="compress-btn" disabled>
+    <div class="btn-inner">
+      <span>🗜</span>
+      <span>圧縮する</span>
+    </div>
+  </button>
+
+  <!-- PROGRESS -->
+  <div class="progress-bar" id="progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <div class="status-text" id="status-text"></div>
+
+  <!-- STATS -->
+  <div class="stats-bar hidden" id="stats-bar">
+    <div class="stat">
+      <div class="stat-num" id="stat-count">0</div>
+      <div class="stat-label">圧縮済み</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="stat-saved">0MB</div>
+      <div class="stat-label">削減容量</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="stat-avg">0%</div>
+      <div class="stat-label">平均削減率</div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-section" class="hidden">
+    <div class="results-header">
+      <div class="results-title">結果</div>
+      <button class="clear-btn" id="clear-btn">クリア</button>
+    </div>
+    <div id="results-list"></div>
+  </div>
+
+  <footer>
+    <span>SQUISH v0.1 — ブラウザ完結型画像圧縮</span>
+    <span>© 2025 · プライバシー保護：画像はサーバーに送信されません</span>
+  </footer>
+</div>
+
+<script>
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const compressBtn = document.getElementById('compress-btn');
+  const qualitySlider = document.getElementById('quality');
+  const qualityVal = document.getElementById('quality-val');
+  const maxsizeSlider = document.getElementById('maxsize');
+  const maxsizeVal = document.getElementById('maxsize-val');
+  const progressBar = document.getElementById('progress-bar');
+  const progressFill = document.getElementById('progress-fill');
+  const statusText = document.getElementById('status-text');
+  const resultsList = document.getElementById('results-list');
+  const resultsSection = document.getElementById('results-section');
+  const statsBar = document.getElementById('stats-bar');
+  const clearBtn = document.getElementById('clear-btn');
+
+  let selectedFiles = [];
+  let selectedFormat = 'original';
+  let results = [];
+
+  // Sliders
+  qualitySlider.addEventListener('input', () => {
+    qualityVal.innerHTML = `${qualitySlider.value}<span style="font-size:1rem;color:var(--muted)">%</span>`;
+  });
+
+  maxsizeSlider.addEventListener('input', () => {
+    const v = (maxsizeSlider.value / 10).toFixed(1);
+    maxsizeVal.innerHTML = `${v}<span style="font-size:1rem;color:var(--muted)">MB</span>`;
+  });
+
+  // Format buttons
+  document.querySelectorAll('.fmt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fmt-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedFormat = btn.dataset.fmt;
+    });
+  });
+
+  // Drag & drop
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+  function handleFiles(files) {
+    selectedFiles = Array.from(files).filter(f => f.type.startsWith('image/') || f.name.match(/\.(heic|heif)$/i));
+    if (selectedFiles.length > 0) {
+      compressBtn.disabled = false;
+      statusText.textContent = `${selectedFiles.length}枚の画像が選択されました`;
+      dropZone.querySelector('.drop-text').textContent = `${selectedFiles.length}枚選択済み — 設定を確認して圧縮`;
+    }
+  }
+
+  // Compress
+  compressBtn.addEventListener('click', async () => {
+    if (!selectedFiles.length) return;
+    
+    compressBtn.disabled = true;
+    progressBar.style.display = 'block';
+    results = [];
+    resultsList.innerHTML = '';
+
+    const quality = parseInt(qualitySlider.value) / 100;
+    const maxSizeMB = maxsizeSlider.value / 10;
+
+    let totalOriginal = 0;
+    let totalCompressed = 0;
+
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      const pct = Math.round(((i) / selectedFiles.length) * 100);
+      progressFill.style.width = pct + '%';
+      statusText.textContent = `処理中... ${i + 1} / ${selectedFiles.length} — ${file.name}`;
+
+      try {
+        const options = {
+          maxSizeMB,
+          initialQuality: quality,
+          useWebWorker: true,
+          fileType: selectedFormat === 'original' ? undefined : selectedFormat,
+          onProgress: p => {
+            const overall = (i / selectedFiles.length + p / 100 / selectedFiles.length) * 100;
+            progressFill.style.width = overall + '%';
+          }
+        };
+
+        const compressed = await imageCompression(file, options);
+        totalOriginal += file.size;
+        totalCompressed += compressed.size;
+
+        const saving = ((1 - compressed.size / file.size) * 100).toFixed(1);
+        const url = URL.createObjectURL(compressed);
+        const ext = selectedFormat === 'original' ? file.name.split('.').pop() : selectedFormat.split('/')[1];
+        const dlName = file.name.replace(/\.[^.]+$/, '') + '_squished.' + ext;
+
+        addResult(file.name, file.size, compressed.size, saving, url, dlName);
+
+      } catch (err) {
+        statusText.textContent = `エラー: ${file.name} — ${err.message}`;
+      }
+    }
+
+    progressFill.style.width = '100%';
+    statusText.textContent = `✓ 完了！ ${selectedFiles.length}枚を圧縮しました`;
+
+    // Stats
+    const totalSaved = totalOriginal - totalCompressed;
+    const avgPct = ((totalSaved / totalOriginal) * 100).toFixed(1);
+    document.getElementById('stat-count').textContent = selectedFiles.length;
+    document.getElementById('stat-saved').textContent = formatSize(totalSaved);
+    document.getElementById('stat-avg').textContent = avgPct + '%';
+    statsBar.classList.remove('hidden');
+    resultsSection.classList.remove('hidden');
+
+    compressBtn.disabled = false;
+    setTimeout(() => { progressBar.style.display = 'none'; }, 1000);
+  });
+
+  function addResult(name, origSize, compSize, saving, url, dlName) {
+    const item = document.createElement('div');
+    item.className = 'result-item';
+    const isGood = parseFloat(saving) > 0;
+    item.innerHTML = `
+      <div class="result-name" title="${name}">${name}</div>
+      <div class="result-sizes">${formatSize(origSize)} → ${formatSize(compSize)}</div>
+      <div class="result-saving ${isGood ? '' : 'bad'}">${isGood ? '▼' : '▲'} ${Math.abs(saving)}%</div>
+      <a href="${url}" download="${dlName}"><button class="dl-btn">↓ 保存</button></a>
+    `;
+    resultsList.appendChild(item);
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + 'B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB';
+    return (bytes / 1024 / 1024).toFixed(2) + 'MB';
+  }
+
+  clearBtn.addEventListener('click', () => {
+    results = [];
+    resultsList.innerHTML = '';
+    resultsSection.classList.add('hidden');
+    statsBar.classList.add('hidden');
+    selectedFiles = [];
+    compressBtn.disabled = true;
+    statusText.textContent = '';
+    dropZone.querySelector('.drop-text').textContent = 'ここに画像をドロップ、またはクリックして選択';
+    fileInput.value = '';
+  });
+</script>
+</body>
+</html>
