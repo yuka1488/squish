@@ -108,18 +108,18 @@
   <h1 id="page-title">お問い合わせ</h1>
   <p class="subtitle" id="page-subtitle">ご質問・ご要望・不具合のご報告など、お気軽にご連絡ください。</p>
 
-  <form id="contact-form">
+  <form id="contact-form" action="https://formspree.io/f/xojpldab" method="POST">
     <div class="form-group">
       <label id="label-name">お名前</label>
-      <input type="text" id="name" placeholder="山田 太郎" required>
+      <input type="text" id="name" name="name" placeholder="山田 太郎" required>
     </div>
     <div class="form-group">
       <label id="label-email">メールアドレス</label>
-      <input type="email" id="email" placeholder="example@email.com" required>
+      <input type="email" id="email" name="email" placeholder="example@email.com" required>
     </div>
     <div class="form-group">
       <label id="label-type">お問い合わせ種別</label>
-      <select id="inquiry-type">
+      <select id="inquiry-type" name="type">
         <option id="opt1">機能に関するご質問</option>
         <option id="opt2">不具合・バグの報告</option>
         <option id="opt3">機能追加のご要望</option>
@@ -128,7 +128,7 @@
     </div>
     <div class="form-group">
       <label id="label-msg">メッセージ</label>
-      <textarea id="message" placeholder="お問い合わせ内容をご記入ください。" required></textarea>
+      <textarea id="message" name="message" placeholder="お問い合わせ内容をご記入ください。" required></textarea>
     </div>
     <button type="submit" class="submit-btn" id="submit-btn">送信する</button>
   </form>
@@ -197,36 +197,7 @@
   setLang(lang);
 
   // Form submit (フォームはformspree等に繋ぐ前のデモ動作)
-  document.getElementById('contact-form').addEventListener('submit', async e => {
-    e.preventDefault();
-    const btn = document.getElementById('submit-btn');
-    btn.textContent = currentLang === 'ja' ? '送信中...' : 'Sending...';
-    btn.disabled = true;
-
-    const data = {
-      name: document.getElementById('name').value,
-      email: document.getElementById('email').value,
-      type: document.getElementById('inquiry-type').value,
-      message: document.getElementById('message').value,
-    };
-
-    try {
-      const res = await fetch('https://formspree.io/f/xojpldab', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        document.getElementById('contact-form').style.display = 'none';
-        document.getElementById('success-msg').style.display = 'block';
-      } else {
-        throw new Error('Failed');
-      }
-    } catch {
-      btn.textContent = currentLang === 'ja' ? '送信に失敗しました。再度お試しください。' : 'Failed. Please try again.';
-      btn.disabled = false;
-    }
-  });
+  // Form submits natively via action attribute
 </script>
 </body>
 </html>
